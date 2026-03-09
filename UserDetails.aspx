@@ -12,7 +12,7 @@
         <div class="row mb-3">
             <div class="col-md-3">
                 <label class="form-label fw-bold">User ID:</label>
-                <asp:TextBox ID="txtUserId" runat="server" CssClass="form-control"></asp:TextBox>
+                <asp:TextBox ID="txtUserId" runat="server" CssClass="form-control" placeholder="Enter unique ID"></asp:TextBox>
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-bold">User Name:</label>

@@ -50,21 +50,54 @@ namespace KumariCinemas
         // ==========================================
         protected void BtnInsertTheatre_Click(object sender, EventArgs e)
         {
+            // Validation: Check if Theatre ID is empty or not a number
+            if (!int.TryParse(txtTheatreId.Text.Trim(), out int theatreId))
+            {
+                lblMessage.Text = "Please enter a valid numeric Theatre ID.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
+            // Validation: Check if Theatre Name is empty
+            if (string.IsNullOrWhiteSpace(txtTheatreName.Text))
+            {
+                lblMessage.Text = "Theatre Name cannot be empty.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("INSERT INTO Theatre (theatre_id, theatre_name) VALUES (:id, :name)", conn);
-                cmd.Parameters.Add("id", txtTheatreId.Text);
-                cmd.Parameters.Add("name", txtTheatreName.Text);
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                lblMessage.Text = "Theatre Added Successfully!";
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = theatreId;
+                cmd.Parameters.Add("name", OracleDbType.Varchar2).Value = txtTheatreName.Text.Trim();
 
-                // Clear textboxes
-                txtTheatreId.Text = "";
-                txtTheatreName.Text = "";
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    lblMessage.Text = "Theatre Added Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
 
-                BindTheatres();
+                    // Clear textboxes
+                    txtTheatreId.Text = "";
+                    txtTheatreName.Text = "";
+
+                    BindTheatres();
+                }
+                catch (OracleException ex)
+                {
+                    if (ex.Number == 1) lblMessage.Text = "Error: A Theatre with this ID already exists!";
+                    else lblMessage.Text = "Database Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Application Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -85,15 +118,25 @@ namespace KumariCinemas
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("UPDATE Theatre SET theatre_name = :name WHERE theatre_id = :id", conn);
-                cmd.Parameters.Add("name", (gvTheatres.Rows[e.RowIndex].Cells[1].Controls[0] as TextBox).Text);
-                cmd.Parameters.Add("id", Convert.ToInt32(gvTheatres.DataKeys[e.RowIndex].Value));
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                gvTheatres.EditIndex = -1;
-                lblMessage.Text = "Theatre Updated Successfully!";
+                cmd.Parameters.Add("name", OracleDbType.Varchar2).Value = (gvTheatres.Rows[e.RowIndex].Cells[1].Controls[0] as TextBox).Text.Trim();
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = Convert.ToInt32(gvTheatres.DataKeys[e.RowIndex].Value);
 
-                BindTheatres();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    gvTheatres.EditIndex = -1;
+                    lblMessage.Text = "Theatre Updated Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindTheatres();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Update Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -102,13 +145,22 @@ namespace KumariCinemas
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("DELETE FROM Theatre WHERE theatre_id = :id", conn);
-                cmd.Parameters.Add("id", Convert.ToInt32(gvTheatres.DataKeys[e.RowIndex].Value));
+                cmd.BindByName = true;
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = Convert.ToInt32(gvTheatres.DataKeys[e.RowIndex].Value);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                lblMessage.Text = "Theatre Deleted Successfully!";
-
-                BindTheatres();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    lblMessage.Text = "Theatre Deleted Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindTheatres();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Delete Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -117,21 +169,54 @@ namespace KumariCinemas
         // ==========================================
         protected void BtnInsertHall_Click(object sender, EventArgs e)
         {
+            // Validation: Check if Hall ID is empty or not a number
+            if (!int.TryParse(txtHallId.Text.Trim(), out int hallId))
+            {
+                lblMessage.Text = "Please enter a valid numeric Hall ID.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
+            // Validation: Check if Capacity is empty or not a number
+            if (!int.TryParse(txtCapacity.Text.Trim(), out int capacity))
+            {
+                lblMessage.Text = "Please enter a valid numeric Capacity.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("INSERT INTO Hall (hall_id, hall_capacity) VALUES (:id, :cap)", conn);
-                cmd.Parameters.Add("id", txtHallId.Text);
-                cmd.Parameters.Add("cap", txtCapacity.Text);
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                lblMessage.Text = "Hall Added Successfully!";
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = hallId;
+                cmd.Parameters.Add("cap", OracleDbType.Int32).Value = capacity;
 
-                // Clear textboxes
-                txtHallId.Text = "";
-                txtCapacity.Text = "";
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    lblMessage.Text = "Hall Added Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
 
-                BindHalls();
+                    // Clear textboxes
+                    txtHallId.Text = "";
+                    txtCapacity.Text = "";
+
+                    BindHalls();
+                }
+                catch (OracleException ex)
+                {
+                    if (ex.Number == 1) lblMessage.Text = "Error: A Hall with this ID already exists!";
+                    else lblMessage.Text = "Database Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Application Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -152,15 +237,25 @@ namespace KumariCinemas
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("UPDATE Hall SET hall_capacity = :cap WHERE hall_id = :id", conn);
-                cmd.Parameters.Add("cap", (gvHalls.Rows[e.RowIndex].Cells[1].Controls[0] as TextBox).Text);
-                cmd.Parameters.Add("id", Convert.ToInt32(gvHalls.DataKeys[e.RowIndex].Value));
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                gvHalls.EditIndex = -1;
-                lblMessage.Text = "Hall Updated Successfully!";
+                cmd.Parameters.Add("cap", OracleDbType.Int32).Value = Convert.ToInt32((gvHalls.Rows[e.RowIndex].Cells[1].Controls[0] as TextBox).Text.Trim());
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = Convert.ToInt32(gvHalls.DataKeys[e.RowIndex].Value);
 
-                BindHalls();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    gvHalls.EditIndex = -1;
+                    lblMessage.Text = "Hall Updated Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindHalls();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Update Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -169,13 +264,22 @@ namespace KumariCinemas
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("DELETE FROM Hall WHERE hall_id = :id", conn);
-                cmd.Parameters.Add("id", Convert.ToInt32(gvHalls.DataKeys[e.RowIndex].Value));
+                cmd.BindByName = true;
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = Convert.ToInt32(gvHalls.DataKeys[e.RowIndex].Value);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                lblMessage.Text = "Hall Deleted Successfully!";
-
-                BindHalls();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    lblMessage.Text = "Hall Deleted Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindHalls();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Delete Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
     }

@@ -22,7 +22,6 @@ namespace KumariCinemas
         {
             using (OracleConnection conn = new OracleConnection(connStr))
             {
-                // FIXED: Changed \"User\" to USERS
                 OracleDataAdapter da = new OracleDataAdapter("SELECT user_id, user_name, address FROM USERS ORDER BY user_id", conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -34,21 +33,56 @@ namespace KumariCinemas
 
         protected void BtnInsert_Click(object sender, EventArgs e)
         {
+            // 1. Validate that the User ID is actually a number
+            if (!int.TryParse(txtUserId.Text.Trim(), out int userId))
+            {
+                lblMessage.Text = "Invalid User ID. Please enter a valid number.";
+                lblMessage.CssClass = "text-danger ms-3 fw-bold";
+                return;
+            }
+
             using (OracleConnection conn = new OracleConnection(connStr))
             {
-                // FIXED: Changed \"User\" to USERS
                 OracleCommand cmd = new OracleCommand("INSERT INTO USERS (user_id, user_name, address) VALUES (:id, :name, :address)", conn);
-                cmd.Parameters.Add("id", txtUserId.Text);
-                cmd.Parameters.Add("name", txtUserName.Text);
-                cmd.Parameters.Add("address", txtAddress.Text);
+                cmd.BindByName = true; // Best practice for Oracle parameters
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                lblMessage.Text = "User Added successfully!";
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = userId;
+                cmd.Parameters.Add("name", OracleDbType.Varchar2).Value = txtUserName.Text.Trim();
+                cmd.Parameters.Add("address", OracleDbType.Varchar2).Value = txtAddress.Text.Trim();
 
-                // Clear textboxes after insert
-                txtUserId.Text = ""; txtUserName.Text = ""; txtAddress.Text = "";
-                BindGrid();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    lblMessage.Text = "User Added successfully!";
+                    lblMessage.CssClass = "text-success ms-3 fw-bold"; // Green success text
+
+                    // Clear textboxes after insert
+                    txtUserId.Text = "";
+                    txtUserName.Text = "";
+                    txtAddress.Text = "";
+
+                    BindGrid();
+                }
+                catch (OracleException ex)
+                {
+                    // Error Number 1 is ORA-00001 (Unique Constraint Violated)
+                    if (ex.Number == 1)
+                    {
+                        lblMessage.Text = "Error: A user with this ID already exists!";
+                    }
+                    else
+                    {
+                        lblMessage.Text = "Database Error: " + ex.Message;
+                    }
+                    lblMessage.CssClass = "text-danger ms-3 fw-bold"; // Red error text
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Application Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger ms-3 fw-bold";
+                }
             }
         }
 
@@ -68,17 +102,29 @@ namespace KumariCinemas
         {
             using (OracleConnection conn = new OracleConnection(connStr))
             {
-                // FIXED: Changed \"User\" to USERS
                 OracleCommand cmd = new OracleCommand("UPDATE USERS SET user_name = :name, address = :addr WHERE user_id = :id", conn);
-                cmd.Parameters.Add("name", (gvUsers.Rows[e.RowIndex].Cells[1].Controls[0] as TextBox).Text);
-                cmd.Parameters.Add("addr", (gvUsers.Rows[e.RowIndex].Cells[2].Controls[0] as TextBox).Text);
-                cmd.Parameters.Add("id", Convert.ToInt32(gvUsers.DataKeys[e.RowIndex].Value));
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                gvUsers.EditIndex = -1;
-                lblMessage.Text = "User Updated successfully!";
-                BindGrid();
+                cmd.Parameters.Add("name", OracleDbType.Varchar2).Value = (gvUsers.Rows[e.RowIndex].Cells[1].Controls[0] as TextBox).Text.Trim();
+                cmd.Parameters.Add("addr", OracleDbType.Varchar2).Value = (gvUsers.Rows[e.RowIndex].Cells[2].Controls[0] as TextBox).Text.Trim();
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = Convert.ToInt32(gvUsers.DataKeys[e.RowIndex].Value);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    gvUsers.EditIndex = -1;
+                    lblMessage.Text = "User Updated successfully!";
+                    lblMessage.CssClass = "text-success ms-3 fw-bold";
+
+                    BindGrid();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Update Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger ms-3 fw-bold";
+                }
             }
         }
 
@@ -86,14 +132,25 @@ namespace KumariCinemas
         {
             using (OracleConnection conn = new OracleConnection(connStr))
             {
-                // FIXED: Changed \"User\" to USERS
                 OracleCommand cmd = new OracleCommand("DELETE FROM USERS WHERE user_id = :id", conn);
-                cmd.Parameters.Add("id", Convert.ToInt32(gvUsers.DataKeys[e.RowIndex].Value));
+                cmd.BindByName = true;
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = Convert.ToInt32(gvUsers.DataKeys[e.RowIndex].Value);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                lblMessage.Text = "User Deleted successfully!";
-                BindGrid();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    lblMessage.Text = "User Deleted successfully!";
+                    lblMessage.CssClass = "text-success ms-3 fw-bold";
+
+                    BindGrid();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Delete Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger ms-3 fw-bold";
+                }
             }
         }
     }

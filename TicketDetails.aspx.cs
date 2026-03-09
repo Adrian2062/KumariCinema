@@ -33,31 +33,84 @@ namespace KumariCinemas
 
         protected void BtnInsert_Click(object sender, EventArgs e)
         {
+            // 1. Validate Ticket ID (Must be a whole number)
+            if (!int.TryParse(txtID.Text.Trim(), out int ticketId))
+            {
+                lblMessage.Text = "Invalid Ticket ID. Please enter a valid number.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
+            // 2. Validate Price (Must be a decimal/number)
+            if (!decimal.TryParse(txtPrice.Text.Trim(), out decimal price))
+            {
+                lblMessage.Text = "Invalid Price. Please enter a valid amount (e.g., 250.00).";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
+            // 3. Validate Status fields (Cannot be empty)
+            if (string.IsNullOrWhiteSpace(txtTStatus.Text) || string.IsNullOrWhiteSpace(txtPStatus.Text))
+            {
+                lblMessage.Text = "Ticket Status and Payment Status cannot be empty.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
+            // 4. Validate Booking Time (Must be a valid Date/Time)
+            if (!DateTime.TryParse(txtBTime.Text.Trim(), out DateTime bookingTime))
+            {
+                lblMessage.Text = "Invalid Booking Time. Please use a format like YYYY-MM-DD HH:mm.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
             using (OracleConnection conn = new OracleConnection(connStr))
             {
+                // Removed TO_DATE. We pass the C# DateTime directly to Oracle.
                 string sql = "INSERT INTO Ticket (ticket_id, ticket_price, ticket_status, booking_time, payment_status) " +
-                             "VALUES (:id, :price, :tstatus, TO_DATE(:btime, 'YYYY-MM-DD HH24:MI:SS'), :pstatus)";
+                             "VALUES (:id, :price, :tstatus, :btime, :pstatus)";
 
                 OracleCommand cmd = new OracleCommand(sql, conn);
-                cmd.Parameters.Add("id", txtID.Text);
-                cmd.Parameters.Add("price", txtPrice.Text);
-                cmd.Parameters.Add("tstatus", txtTStatus.Text);
-                cmd.Parameters.Add("btime", txtBTime.Text);
-                cmd.Parameters.Add("pstatus", txtPStatus.Text);
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = ticketId;
+                cmd.Parameters.Add("price", OracleDbType.Decimal).Value = price;
+                cmd.Parameters.Add("tstatus", OracleDbType.Varchar2).Value = txtTStatus.Text.Trim();
+                cmd.Parameters.Add("btime", OracleDbType.Date).Value = bookingTime;
+                cmd.Parameters.Add("pstatus", OracleDbType.Varchar2).Value = txtPStatus.Text.Trim();
 
-                lblMessage.Text = "Ticket Added Successfully!";
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
 
-                // Clear the textboxes
-                txtID.Text = "";
-                txtPrice.Text = "";
-                txtTStatus.Text = "";
-                txtBTime.Text = "";
-                txtPStatus.Text = "";
+                    lblMessage.Text = "Ticket Added Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
 
-                BindGrid();
+                    // Clear the textboxes
+                    txtID.Text = "";
+                    txtPrice.Text = "";
+                    txtTStatus.Text = "";
+                    txtBTime.Text = "";
+                    txtPStatus.Text = "";
+
+                    BindGrid();
+                }
+                catch (OracleException ex)
+                {
+                    if (ex.Number == 1)
+                        lblMessage.Text = "Error: A Ticket with this ID already exists!";
+                    else
+                        lblMessage.Text = "Database Error: " + ex.Message;
+
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Application Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -76,22 +129,33 @@ namespace KumariCinemas
         protected void GvTickets_RowUpdating(object sender, GridViewUpdateEventArgs e)
         {
             int ticketId = Convert.ToInt32(gvTickets.DataKeys[e.RowIndex].Value);
-            string updatedTStatus = (gvTickets.Rows[e.RowIndex].Cells[2].Controls[0] as TextBox).Text;
-            string updatedPStatus = (gvTickets.Rows[e.RowIndex].Cells[4].Controls[0] as TextBox).Text;
+            string updatedTStatus = (gvTickets.Rows[e.RowIndex].Cells[2].Controls[0] as TextBox).Text.Trim();
+            string updatedPStatus = (gvTickets.Rows[e.RowIndex].Cells[4].Controls[0] as TextBox).Text.Trim();
 
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("UPDATE Ticket SET ticket_status=:ts, payment_status=:ps WHERE ticket_id=:id", conn);
-                cmd.Parameters.Add("ts", updatedTStatus);
-                cmd.Parameters.Add("ps", updatedPStatus);
-                cmd.Parameters.Add("id", ticketId);
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                cmd.Parameters.Add("ts", OracleDbType.Varchar2).Value = updatedTStatus;
+                cmd.Parameters.Add("ps", OracleDbType.Varchar2).Value = updatedPStatus;
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = ticketId;
 
-                gvTickets.EditIndex = -1;
-                lblMessage.Text = "Ticket Updated Successfully!";
-                BindGrid();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    gvTickets.EditIndex = -1;
+                    lblMessage.Text = "Ticket Updated Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindGrid();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Update Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -102,13 +166,23 @@ namespace KumariCinemas
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 OracleCommand cmd = new OracleCommand("DELETE FROM Ticket WHERE ticket_id = :id", conn);
-                cmd.Parameters.Add("id", ticketId);
+                cmd.BindByName = true;
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = ticketId;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
 
-                lblMessage.Text = "Ticket Deleted!";
-                BindGrid();
+                    lblMessage.Text = "Ticket Deleted!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindGrid();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Delete Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
     }

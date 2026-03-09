@@ -22,7 +22,6 @@ namespace KumariCinemas
         {
             using (OracleConnection conn = new OracleConnection(connStr))
             {
-                // Updated table name to SHOWS (matching your database screenshot)
                 string sql = "SELECT show_id, show_date, TO_CHAR(show_time, 'HH24:MI:SS') as show_time, holiday_status FROM SHOWS ORDER BY show_id";
                 OracleDataAdapter da = new OracleDataAdapter(sql, conn);
                 DataTable dt = new DataTable();
@@ -35,30 +34,89 @@ namespace KumariCinemas
 
         protected void BtnInsert_Click(object sender, EventArgs e)
         {
+            // 1. Safely validate Show ID
+            if (!int.TryParse(txtID.Text.Trim(), out int showId))
+            {
+                lblMessage.Text = "Invalid Show ID. Must be a number.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
+            // 2. Safely validate Date
+            if (!DateTime.TryParse(txtDate.Text.Trim(), out DateTime parsedDate))
+            {
+                lblMessage.Text = "Invalid Date format. Please use YYYY-MM-DD.";
+                lblMessage.CssClass = "text-danger fw-bold fs-5";
+                return;
+            }
+
+            // 3. Safely validate Time (Allows "14:30" or "14:30:00")
+            if (!TimeSpan.TryParse(txtTime.Text.Trim(), out TimeSpan parsedTime))
+            {
+                // Fallback in case they typed a full date-time string anyway
+                if (DateTime.TryParse(txtTime.Text.Trim(), out DateTime fullDateTime))
+                {
+                    parsedTime = fullDateTime.TimeOfDay;
+                }
+                else
+                {
+                    lblMessage.Text = "Invalid Time format. Please use HH:mm (e.g., 14:30).";
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                    return;
+                }
+            }
+
+            // Combine the validated Date and Time into one C# DateTime object
+            DateTime combinedDateTime = parsedDate.Date + parsedTime;
+
             using (OracleConnection conn = new OracleConnection(connStr))
             {
-                // Updated table name to SHOWS
+                // TO_DATE removed. We pass the native C# DateTime parameters directly.
                 string sql = "INSERT INTO SHOWS (show_id, show_date, show_time, holiday_status) " +
-                             "VALUES (:id, TO_DATE(:sdate, 'YYYY-MM-DD'), TO_DATE(:stime, 'YYYY-MM-DD HH24:MI:SS'), :hol)";
+                             "VALUES (:id, :sdate, :stime, :hol)";
 
                 OracleCommand cmd = new OracleCommand(sql, conn);
-                cmd.Parameters.Add("id", txtID.Text);
-                cmd.Parameters.Add("sdate", txtDate.Text);
-                cmd.Parameters.Add("stime", txtTime.Text);
-                cmd.Parameters.Add("hol", txtHol.Text.ToUpper());
+                cmd.BindByName = true;
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                cmd.Parameters.Add("id", OracleDbType.Int32).Value = showId;
+                cmd.Parameters.Add("sdate", OracleDbType.Date).Value = parsedDate;
+                cmd.Parameters.Add("stime", OracleDbType.Date).Value = combinedDateTime;
+                cmd.Parameters.Add("hol", OracleDbType.Varchar2).Value = txtHol.Text.Trim().ToUpper();
 
-                lblMessage.Text = "Show Added Successfully!";
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
 
-                // Clear the textboxes
-                txtID.Text = "";
-                txtDate.Text = "";
-                txtTime.Text = "";
-                txtHol.Text = "";
+                    lblMessage.Text = "Show Added Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
 
-                BindGrid();
+                    // Clear the textboxes
+                    txtID.Text = "";
+                    txtDate.Text = "";
+                    txtTime.Text = "";
+                    txtHol.Text = "";
+
+                    BindGrid();
+                }
+                catch (OracleException ex)
+                {
+                    // Catch the Unique Constraint error specifically
+                    if (ex.Number == 1)
+                    {
+                        lblMessage.Text = "Error: A Show with ID " + showId + " already exists!";
+                    }
+                    else
+                    {
+                        lblMessage.Text = "Database Error: " + ex.Message;
+                    }
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Application Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -81,17 +139,25 @@ namespace KumariCinemas
                 string updatedHol = (gvShows.Rows[e.RowIndex].Cells[3].Controls[0] as TextBox).Text.ToUpper();
                 int showId = Convert.ToInt32(gvShows.DataKeys[e.RowIndex].Value);
 
-                // Updated table name to SHOWS
                 OracleCommand cmd = new OracleCommand("UPDATE SHOWS SET holiday_status=:h WHERE show_id=:id", conn);
                 cmd.Parameters.Add("h", updatedHol);
                 cmd.Parameters.Add("id", showId);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
 
-                gvShows.EditIndex = -1;
-                lblMessage.Text = "Show Updated Successfully!";
-                BindGrid();
+                    gvShows.EditIndex = -1;
+                    lblMessage.Text = "Show Updated Successfully!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindGrid();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Update Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
 
@@ -100,14 +166,24 @@ namespace KumariCinemas
             using (OracleConnection conn = new OracleConnection(connStr))
             {
                 int showId = Convert.ToInt32(gvShows.DataKeys[e.RowIndex].Value);
-                // Updated table name to SHOWS
+
                 OracleCommand cmd = new OracleCommand("DELETE FROM SHOWS WHERE show_id = :id", conn);
                 cmd.Parameters.Add("id", showId);
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
-                lblMessage.Text = "Show Deleted!";
-                BindGrid();
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    lblMessage.Text = "Show Deleted!";
+                    lblMessage.CssClass = "text-success fw-bold fs-5";
+                    BindGrid();
+                }
+                catch (Exception ex)
+                {
+                    lblMessage.Text = "Delete Error: " + ex.Message;
+                    lblMessage.CssClass = "text-danger fw-bold fs-5";
+                }
             }
         }
     }

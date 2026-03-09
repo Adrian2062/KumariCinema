@@ -28,7 +28,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold">Show Time:</label>
-                        <asp:TextBox ID="txtTime" runat="server" CssClass="form-control" placeholder="YYYY-MM-DD HH24:MI:SS"></asp:TextBox>
+                        <asp:TextBox ID="txtTime" runat="server" CssClass="form-control" placeholder="HH:mm (e.g. 14:30)"></asp:TextBox>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Holiday Status:</label>
