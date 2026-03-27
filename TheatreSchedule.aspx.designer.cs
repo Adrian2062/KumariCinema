@@ -11,7 +11,7 @@ namespace KumariCinemas
 {
 
 
-    public partial class Reports
+    public partial class TheatreSchedule
     {
 
         /// <summary>
@@ -24,33 +24,6 @@ namespace KumariCinemas
         protected global::System.Web.UI.WebControls.Label lblMessage;
 
         /// <summary>
-        /// txtUserIdSearch control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtUserIdSearch;
-
-        /// <summary>
-        /// btnUserReport control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnUserReport;
-
-        /// <summary>
-        /// gvUserTickets control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvUserTickets;
-
-        /// <summary>
         /// ddlTheatre control.
         /// </summary>
         /// <remarks>
@@ -58,6 +31,15 @@ namespace KumariCinemas
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlTheatre;
+
+        /// <summary>
+        /// ddlHall control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlHall;
 
         /// <summary>
         /// btnTheatreReport control.
@@ -69,6 +51,15 @@ namespace KumariCinemas
         protected global::System.Web.UI.WebControls.Button btnTheatreReport;
 
         /// <summary>
+        /// lblTheatreResult control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblTheatreResult;
+
+        /// <summary>
         /// gvTheatreMovies control.
         /// </summary>
         /// <remarks>
@@ -76,32 +67,5 @@ namespace KumariCinemas
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.GridView gvTheatreMovies;
-
-        /// <summary>
-        /// ddlMovies control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlMovies;
-
-        /// <summary>
-        /// btnOccupancyReport control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnOccupancyReport;
-
-        /// <summary>
-        /// gvTopOccupancy control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvTopOccupancy;
     }
 }

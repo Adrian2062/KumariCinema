@@ -104,11 +104,9 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <div class="stat-label">Total Revenue</div>
-                            <!-- Changed default text to Rs. -->
                             <div class="stat-value">
                                 <asp:Label ID="lblTotalRevenue" runat="server" Text="Rs. 0.00"></asp:Label></div>
                         </div>
-                        <!-- Changed icon to fa-money-bill-trend-up for a more professional look -->
                         <div class="stat-icon-box" style="background: #fffbeb; color: #f59e0b;">
                             <i class="fa-solid fa-money-bill-trend-up fa-lg"></i>
                         </div>
@@ -158,22 +156,32 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="module-card p-4 d-flex align-items-center">
-                    <div class="me-4 module-icon text-warning mb-0"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                    <div class="flex-grow-1">
-                        <h5 class="module-title">Showtime Scheduler</h5>
-                        <p class="module-desc mb-3">Sync movies with halls and dates to prevent scheduling conflicts.</p>
-                        <a href="ShowDetails.aspx" class="btn btn-action">Open Scheduler</a>
+                <div class="module-card p-4 d-flex flex-column justify-content-center">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-4 module-icon text-warning mb-0"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <div>
+                            <h5 class="module-title">Showtime Scheduler</h5>
+                            <p class="module-desc mb-0">Sync movies with halls and dates to prevent scheduling conflicts.</p>
+                        </div>
                     </div>
+                    <a href="ShowDetails.aspx" class="btn btn-action w-100">Open Scheduler</a>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="module-card p-4 d-flex align-items-center">
-                    <div class="me-4 module-icon text-info mb-0"><i class="fa-solid fa-chart-line"></i></div>
-                    <div class="flex-grow-1">
-                        <h5 class="module-title">Advanced Analytics</h5>
-                        <p class="module-desc mb-3">Generate data-driven reports on occupancy, revenue trends, and sales performance.</p>
-                        <a href="Reports.aspx" class="btn btn-action">Generate Reports</a>
+                <div class="module-card p-4 d-flex flex-column justify-content-center">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-4 module-icon text-info mb-0"><i class="fa-solid fa-chart-line"></i></div>
+                        <div>
+                            <h5 class="module-title">Advanced Analytics</h5>
+                            <p class="module-desc mb-0">Generate complex data-driven reports via multi-table relationships.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- NEW SEPARATED BUTTONS FOR COMPLEX REPORTS -->
+                    <div class="d-flex flex-column flex-lg-row gap-2 mt-2">
+                        <a href="UserTicketHistory.aspx" class="btn btn-action w-100"><i class="fa-solid fa-user-tag me-1"></i> User Tickets</a>
+                        <a href="TheatreSchedule.aspx" class="btn btn-action w-100"><i class="fa-solid fa-calendar-check me-1"></i> Schedules</a>
+                        <a href="TopOccupancyReport.aspx" class="btn btn-action w-100"><i class="fa-solid fa-trophy me-1"></i> Occupancy</a>
                     </div>
                 </div>
             </div>

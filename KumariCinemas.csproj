@@ -159,7 +159,6 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="MovieDetails.aspx" />
-    <Content Include="Reports.aspx" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -224,8 +223,11 @@
     <Content Include="ShowDetails.aspx" />
     <Content Include="Site.Master" />
     <Content Include="TheaterCityHallDetails.aspx" />
+    <Content Include="TheatreSchedule.aspx" />
     <Content Include="TicketDetails.aspx" />
+    <Content Include="TopOccupancyReport.aspx" />
     <Content Include="UserDetails.aspx" />
+    <Content Include="UserTicketHistory.aspx" />
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Web.config" />
     <Content Include="Bundle.config" />
@@ -273,13 +275,6 @@
       <DependentUpon>MovieDetails.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reports.aspx.cs">
-      <DependentUpon>Reports.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Reports.aspx.designer.cs">
-      <DependentUpon>Reports.aspx</DependentUpon>
-    </Compile>
     <Compile Include="ShowDetails.aspx.cs">
       <DependentUpon>ShowDetails.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -308,6 +303,13 @@
     <Compile Include="TheaterCityHallDetails.aspx.designer.cs">
       <DependentUpon>TheaterCityHallDetails.aspx</DependentUpon>
     </Compile>
+    <Compile Include="TheatreSchedule.aspx.cs">
+      <DependentUpon>TheatreSchedule.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TheatreSchedule.aspx.designer.cs">
+      <DependentUpon>TheatreSchedule.aspx</DependentUpon>
+    </Compile>
     <Compile Include="TicketDetails.aspx.cs">
       <DependentUpon>TicketDetails.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -315,12 +317,26 @@
     <Compile Include="TicketDetails.aspx.designer.cs">
       <DependentUpon>TicketDetails.aspx</DependentUpon>
     </Compile>
+    <Compile Include="TopOccupancyReport.aspx.cs">
+      <DependentUpon>TopOccupancyReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TopOccupancyReport.aspx.designer.cs">
+      <DependentUpon>TopOccupancyReport.aspx</DependentUpon>
+    </Compile>
     <Compile Include="UserDetails.aspx.cs">
       <DependentUpon>UserDetails.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="UserDetails.aspx.designer.cs">
       <DependentUpon>UserDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="UserTicketHistory.aspx.cs">
+      <DependentUpon>UserTicketHistory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UserTicketHistory.aspx.designer.cs">
+      <DependentUpon>UserTicketHistory.aspx</DependentUpon>
     </Compile>
     <Compile Include="ViewSwitcher.ascx.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>
